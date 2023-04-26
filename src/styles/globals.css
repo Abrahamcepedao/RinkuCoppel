@@ -25,3 +25,14 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+
+
+
+/* inputs */
+.transparent__input {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+}
