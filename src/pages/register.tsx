@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 export default function Home(/* {posts} */) {
 
-  const [data, setData] = useState({correo: "", password: ""});
+  const [data, setData] = useState({correo: "", password: "", confirmPassword: ""});
 
   const router = useRouter()
 
@@ -47,8 +47,8 @@ export default function Home(/* {posts} */) {
         <div className='w-full h-screen bg-auth__overlay flex justify-start items-center p-10'>
           <div className="w-1/2">
             <div className='max-w-xs m-auto'>
-              <h1 className='text-4xl font-bold mb-2 text-white'>Inicia Sesión<span className='text-6xl !text-blue__primary'>.</span></h1>
-              <p className='mb-4 text-sm text-white'>¿No tienes una cuenta? <Link href={"/register"} className='!text-blue__primary'>Regístrate</Link></p>
+              <h1 className='text-4xl font-bold mb-2 text-white'>Regístrate<span className='text-6xl !text-blue__primary'>.</span></h1>
+              <p className='mb-4 text-sm text-white'>Ya tienes una cuenta? <Link href={"/"} className='!text-blue__primary'>Inicia sesión</Link></p>
               <form  className='w-full'  onSubmit={(e) => {submit(e)}}>
                 
                 <div className='bg-dark__alt rounded-2xl p-4 mb-4'>
@@ -69,8 +69,16 @@ export default function Home(/* {posts} */) {
                     className='transparent__input'
                     onChange={(e) => handleInputChange(e)} />
                 </div>
-
-                <button className='p-3 rounded-full bg-blue__primary w-full max-w-xs' type='submit'>Login</button>
+                <div className='bg-dark__alt rounded-2xl p-4 mb-4'>
+                  <input 
+                    type={"password"}  
+                    value={data.confirmPassword}
+                    placeholder="Confirma tu contraseña"
+                    name='confirmPassword'
+                    className='transparent__input'
+                    onChange={(e) => handleInputChange(e)} />
+                </div>
+                <button className='p-3 rounded-full bg-blue__primary w-full max-w-xs' type='submit'>Regístrate</button>
 
               </form>
             </div>
