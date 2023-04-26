@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon server.js",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.12",
+    "@pothos/core": "^3.29.0",
+    "@pothos/plugin-prisma": "^3.47.2",
     "@prisma/client": "^4.13.0",
     "@types/node": "18.16.0",
     "@types/react": "18.2.0",
@@ -16,6 +19,8 @@
     "autoprefixer": "10.4.14",
     "fastify": "^4.15.0",
     "fastify-nextjs": "^7.3.0",
+    "graphql": "^16.6.0",
+    "graphql-yoga": "^3.9.1",
     "iron-session": "^6.3.1",
     "next": "13.3.1",
     "postcss": "8.4.23",
