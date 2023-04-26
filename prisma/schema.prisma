@@ -5,6 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator photos {
+  provider = "prisma-pothos-types"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -14,7 +18,7 @@ model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  email     String?  @unique
+  email     String   @unique
   role      UserRole @default(ADMIN)
   name      String
 }
