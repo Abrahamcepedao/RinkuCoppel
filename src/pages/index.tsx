@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 //Assets
 import Logo from '../../public/logo.png'
 import Link from 'next/link';
+import { login } from '../../firebase/functions/auth';
 
 export default function Home(/* {posts} */) {
 
@@ -14,17 +15,21 @@ export default function Home(/* {posts} */) {
 
   const router = useRouter()
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const submit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if(data.correo && data.password) {
-      postData('/api/login', data).then(data => {
-        console.log(data); 
-
-        if (data.status === "success") router.push('/dashboard')
-      
-      });
+      let res = await login(data.correo, data.password)
+      if (typeof res === 'string') {
+          router.push('/dashboard')
+          //alert error here..
+      } else {
+          //dispatch(setReduxUser(res))
+          //router.push("/app/admin/dashboard")
+      }
     }
+
+    console.log(data.correo, data.password)
 
   }
 

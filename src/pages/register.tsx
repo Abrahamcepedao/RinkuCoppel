@@ -8,22 +8,38 @@ import { useRouter } from 'next/router'
 import Logo from '../../public/logo.png'
 import Link from 'next/link';
 
-export default function Home(/* {posts} */) {
+//Firebase
+import { signup } from '../../firebase/functions/auth';
+
+export default function Home() {
 
   const [data, setData] = useState({correo: "", password: "", confirmPassword: ""});
 
   const router = useRouter()
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if(data.correo && data.password) {
+    /* if(data.correo && data.password) {
       postData('/api/login', data).then(data => {
         console.log(data); 
 
         if (data.status === "success") router.push('/dashboard')
       
       });
+    } */
+    console.log(data.correo, data.password)
+    if(data.correo && data.password && data.confirmPassword) {
+      console.log("signign up...")
+      let res = await signup(data.correo, data.password)
+      console.log(res)
+      if (typeof res === 'string') {
+          router.push('/dashboard')
+          //alert error here..
+      } else {
+          //dispatch(setReduxUser(res))
+          //router.push("/app/admin/dashboard")
+      }
     }
 
   }

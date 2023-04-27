@@ -30,14 +30,8 @@ enum UserRole {
 model Employees {
   num       Int         @id @default(autoincrement())
   name      String
-  role      EmpRole
+  role      String
   Movements Movements[]
-}
-
-enum EmpRole {
-  CHOFER
-  CARGADOR
-  AUXILIARES
 }
 
 model Movements {
