@@ -6,7 +6,7 @@ import Head from 'next/head'
 import Image from 'next/image';
 import { useRouter } from 'next/router'
 import { GetServerSideProps } from 'next';
-
+import prisma from '../../../lib/prisma';
 //Assets
 import Logo from '../../../public/logo.png'
 

@@ -2,12 +2,11 @@
 import { useState } from 'react';
 import Head from 'next/head'
 import Image from 'next/image';
-import { postData } from '../../lib/request';
 import { useRouter } from 'next/router'
+import prisma from '../../lib/prisma';
 
 //Assets
 import Logo from '../../public/logo.png'
-import Link from 'next/link';
 
 //Material UI
 import { IconButton, Tooltip } from '@mui/material';
