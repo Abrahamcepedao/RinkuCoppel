@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Head from 'next/head'
 import Image from 'next/image';
 import { useRouter } from 'next/router'
-import prisma from '../../lib/prisma';
+import prismas from '../../lib/prisma';
 
 //Assets
 import Logo from '../../public/logo.png'
