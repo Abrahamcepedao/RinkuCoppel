@@ -43,16 +43,16 @@ import EmployeeProps from '../../utils/interfaces/EmployeeProps';
 import MovementProps from '../../utils/interfaces/MovementProps';
 import KpiProps from '../../utils/interfaces/KpiProps';
 
+//Functions
+import { loadDashboard } from '../../lib/loadDashboard';
+
 //Get Static Props - employees
 export const getStaticProps: GetStaticProps = async () => {
-    const employees = await prisma.employees.findMany()
-
-    const movements = await prisma.movements.findMany({
-        where: { month: 0 }
-    })
+    const { employees, movements } = await loadDashboard()
 
     return {
-        props: { employees, movements }
+        props: { employees, movements },
+        revalidate: 1
     }
 }
 
