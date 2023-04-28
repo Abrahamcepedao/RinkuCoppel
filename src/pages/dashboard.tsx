@@ -1,11 +1,13 @@
 //React
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 //Next
 import Head from 'next/head'
 import Image from 'next/image';
 import { useRouter } from 'next/router'
 import { GetStaticProps } from 'next';
+
+import prisma from '../../lib/prisma';
 
 //Assets
 import Logo from '../../public/logo.png'

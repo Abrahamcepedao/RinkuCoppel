@@ -11,7 +11,7 @@ generator photos {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("postgresql://postgres:Code357541$@localhost:5433/renku_cop?schema=public")
 }
 
 model User {
