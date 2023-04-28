@@ -18,6 +18,9 @@ module.exports = {
         'dash4': "rgba(72, 214, 112, 0.15)",
         'dash5': "rgba(228, 21, 119, 0.15)",
         'dash6': "rgba(234, 99, 21, 0.15)",
+        'dash7': "rgba(232, 214, 78, 0.15)",
+        'dash8': "rgba(12, 15, 109, 0.15)",
+        'dash9': "rgba(157, 204, 18, 0.15)",
       },
       backgroundImage: {
         'auth': 'url(/img/background.jpg)',
@@ -33,6 +36,9 @@ module.exports = {
         'dash4': "#1dd670",
         'dash5': "#e51677",
         'dash6': "#ea6315",
+        'dash7': "#e8d64e",
+        'dash8': "#0c0f6d",
+        'dash9': "#9dcc12",
       }
     },
   },

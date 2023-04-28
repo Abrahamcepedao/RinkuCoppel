@@ -1,11 +1,7 @@
 import React from "react";
 import Router from "next/router";
 
-export type EmployeeProps = {
-    num: number;
-    name: string;
-    role: string;    
-};  
+import EmployeeProps from "../../utils/interfaces/EmployeeProps"; 
 
 const Employee: React.FC<{ employee: EmployeeProps }> = ({ employee }) => {
   return (
