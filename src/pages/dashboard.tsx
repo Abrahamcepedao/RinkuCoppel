@@ -22,39 +22,108 @@ import PaymentsRoundedIcon from '@mui/icons-material/PaymentsRounded';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
+import DeliveryDiningRoundedIcon from '@mui/icons-material/DeliveryDiningRounded';
+import ConfirmationNumberRoundedIcon from '@mui/icons-material/ConfirmationNumberRounded';
+import LocalActivityRoundedIcon from '@mui/icons-material/LocalActivityRounded';
+import PaidRoundedIcon from '@mui/icons-material/PaidRounded';
+import AssuredWorkloadRoundedIcon from '@mui/icons-material/AssuredWorkloadRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 
 //Components
 import { StyledMenu } from '@/components/Menu';
-import Employee, { EmployeeProps } from '@/components/Employee';
+import Employee from '@/components/Employee';
 
 //Constants
 import months from '../../utils/constants/months';
+
+//Interfaces
+import EmployeeProps from '../../utils/interfaces/EmployeeProps';
+import MovementProps from '../../utils/interfaces/MovementProps';
+import KpiProps from '../../utils/interfaces/KpiProps';
 
 //Get Static Props - employees
 export const getStaticProps: GetStaticProps = async () => {
     const employees = await prisma.employees.findMany()
 
+    const movements = await prisma.movements.findMany({
+        where: { month: 0 }
+    })
+
     return {
-        props: { employees }
+        props: { employees, movements }
     }
 }
 
 //Type - Props
 type Props = {
-    employees: EmployeeProps[]
+    employees: EmployeeProps[],
+    movements: MovementProps[]
 }
 
 const Dashboard: React.FC<Props> = (props) => {
     //Router
     const router = useRouter()
 
+    //useState - month
+    const [month, setMonth] = useState(0)
+
+    //useState - kpis data
+    const [data, setData] = useState<KpiProps | null>({
+        totDeliveries: 0,
+        totBonos: 0,
+        totIsr: 0,
+        totCupons: 0,
+        totSalary: 0,
+        totNetSalary: 0
+    })
+
+    //useState - filter
+    const [filter, setFilter] = useState("")
+
+    //useState - employees list
+    const [employees, setEmployees] = useState<Array<EmployeeProps>>([])
+
+    //useState - month selection
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
     //useEffect
     useEffect(() => {
+        if(props.employees) {
+            setEmployees(props.employees)
+        }
         console.log(props.employees)
+        console.log(props.movements)
+        calculateData(props.movements)
     }, [])
+
+    const calculateData = (arr: MovementProps[]) => {
+        if(arr !== null && arr !== undefined) {
+            let totDeliveries: number = 0
+            let totBonos: number = 0
+            let totIsr: number = 0
+            let totCupons: number = 0
+            let totSalary: number = 0
+            let totNetSalary: number = 0
+
+            arr.forEach((item) => {
+                totDeliveries += item.totDeliveries
+                totBonos += item.totBonus
+                totIsr += (item.isr + item.isrAdd)
+                totCupons += item.cupons
+                totSalary += item.gross
+                totNetSalary += item.net
+            })
+            setData({
+                totDeliveries,
+                totBonos,
+                totIsr,
+                totCupons,
+                totSalary,
+                totNetSalary,
+            })
+        }
+    }
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -62,6 +131,44 @@ const Dashboard: React.FC<Props> = (props) => {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const handleGetMovements = async (month: number) => {
+        try {
+            const body = { month }
+            const res = await fetch('/api/movement/month', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            })
+            console.log(res)
+            const r:MovementProps[] | null = await res.json()
+            console.log(r)
+            if(r === null) {
+                setData(null)
+                
+            } else {
+                calculateData(r)
+            }
+        } catch(error) {
+            console.error(error)
+        }
+    }
+
+    //handle month change
+    const handleMonthChange = (num: number) => {
+        setMonth(num)
+        handleClose()
+        handleGetMovements(num)
+    }
+
+    //handle filter change
+    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let temp = [...props.employees]
+        let value = e.target.value
+        temp = temp.filter((el) => el.name.toLocaleLowerCase().includes(value.toLocaleLowerCase()) || el.num.toString().includes(value))
+        setFilter(value)
+        setEmployees(temp)
+    }
 
     return (
         <div className="">
@@ -76,10 +183,15 @@ const Dashboard: React.FC<Props> = (props) => {
             
                 <Image src={Logo} alt='Runko' className='fixed top-5 left-5 text-white' width={150}/>
 
-                <div className='min-w-[600px]'>
+                <div className='min-w-[800px]'>
                     {/* header */}
                     <div className='flex justify-between items-center mb-4'>
                         <div>
+                            <Tooltip title="Cerrar sesión" placement='top'>
+                                <IconButton onClick={() => {router.push('/')}}>
+                                    <LogoutRoundedIcon className='text-white'/>
+                                </IconButton>
+                            </Tooltip>
                             <Tooltip title="Agregar empleado" placement='top'>
                                 <IconButton onClick={() => {router.push('/add_employee')}}>
                                     <PeopleRoundedIcon className='text-white'/>
@@ -104,74 +216,81 @@ const Dashboard: React.FC<Props> = (props) => {
                                 className='!bg-white !text-black'
                                 endIcon={<KeyboardArrowDownIcon />}
                             >
-                                Options
+                                {months[month].label}
                             </Button>
                         </div>
                     </div>
 
                     {/* KPI's */}
-                    <div className='grid grid-cols-3 gap-4 mb-4'>
-                        <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
-                            <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash1 mr-4'>
-                                <PaymentsRoundedIcon className='text-dash1'/>
+                    {(data !== null) ? (
+                        <div className='grid grid-cols-3 gap-4 mb-4'>
+                            <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
+                                <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash2 mr-4'>
+                                    <DeliveryDiningRoundedIcon className='text-dash2'/>
+                                </div>
+                                <div>
+                                    <p className='text-white opacity-50 text-base'>Total Entregas</p>
+                                    <p className='text-white font-bold text-2xl'>${data.totDeliveries ? data.totDeliveries.toFixed() : 0}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className='text-white opacity-50 text-base'>Hora trabajadas</p>
-                                <p className='text-white font-bold text-2xl'>1,204</p>
+                            <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
+                                <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash3 mr-4'>
+                                    <ConfirmationNumberRoundedIcon className='text-dash3'/>
+                                </div>
+                                <div>
+                                    <p className='text-white opacity-50 text-base'>Total Bonos</p>
+                                    <p className='text-white font-bold text-2xl'>${data.totBonos ? data.totBonos.toFixed(2) : 0}</p>
+                                </div>
+                            </div>
+                            <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
+                                <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash4 mr-4'>
+                                    <AssuredWorkloadRoundedIcon className='text-dash4'/>
+                                </div>
+                                <div>
+                                    <p className='text-white opacity-50 text-base'>Total ISR</p>
+                                    <p className='text-white font-bold text-2xl'>${data.totIsr ? data.totIsr.toFixed(2) : 0}</p>
+                                </div>
+                            </div>
+                            <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
+                                <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash5 mr-4'>
+                                    <LocalActivityRoundedIcon className='text-dash5'/>
+                                </div>
+                                <div>
+                                    <p className='text-white opacity-50 text-base'>Total vales</p>
+                                    <p className='text-white font-bold text-2xl'>${data.totCupons ? data.totCupons.toFixed(2) : 0}</p>
+                                </div>
+                            </div>
+                            <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
+                                <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash6 mr-4'>
+                                    <PaidRoundedIcon className='text-dash6'/>
+                                </div>
+                                <div>
+                                    <p className='text-white opacity-50 text-base'>Sueldo Bruto</p>
+                                    <p className='text-white font-bold text-2xl'>${data.totSalary ? data.totSalary.toFixed(2) : 0}</p>
+                                </div>
+                            </div>
+                            <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
+                                <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash1 mr-4'>
+                                    <PaidRoundedIcon className='text-dash1'/>
+                                </div>
+                                <div>
+                                    <p className='text-white opacity-50 text-base'>Sueldo Neto </p>
+                                    <p className='text-white font-bold text-2xl'>${data.totNetSalary ? data.totNetSalary.toFixed(2) : 0}</p>
+                                </div>
                             </div>
                         </div>
-                        <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
-                            <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash2 mr-4'>
-                                <PaymentsRoundedIcon className='text-dash2'/>
-                            </div>
-                            <div>
-                                <p className='text-white opacity-50 text-base'>Hora trabajadas</p>
-                                <p className='text-white font-bold text-2xl'>1,204</p>
-                            </div>
+                    ) : (
+                        <div className='rounded-xl bg-dark__alt p-4'>
+                            <h4 className='text-white'>No hay un pago registrado para {months[month].label}</h4>
                         </div>
-                        <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
-                            <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash3 mr-4'>
-                                <PaymentsRoundedIcon className='text-dash3'/>
-                            </div>
-                            <div>
-                                <p className='text-white opacity-50 text-base'>Hora trabajadas</p>
-                                <p className='text-white font-bold text-2xl'>1,204</p>
-                            </div>
-                        </div>
-                        <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
-                            <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash4 mr-4'>
-                                <PaymentsRoundedIcon className='text-dash4'/>
-                            </div>
-                            <div>
-                                <p className='text-white opacity-50 text-base'>Hora trabajadas</p>
-                                <p className='text-white font-bold text-2xl'>1,204</p>
-                            </div>
-                        </div>
-                        <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
-                            <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash5 mr-4'>
-                                <PaymentsRoundedIcon className='text-dash5'/>
-                            </div>
-                            <div>
-                                <p className='text-white opacity-50 text-base'>Hora trabajadas</p>
-                                <p className='text-white font-bold text-2xl'>1,204</p>
-                            </div>
-                        </div>
-                        <div className='rounded-xl bg-dark__alt p-4 flex justify-start items-center'>
-                            <div className='w-10 h-10 flex justify-center flex-col items-center rounded-xl bg-dash6 mr-4'>
-                                <PaymentsRoundedIcon className='text-dash6'/>
-                            </div>
-                            <div>
-                                <p className='text-white opacity-50 text-base'>Hora trabajadas</p>
-                                <p className='text-white font-bold text-2xl'>1,204</p>
-                            </div>
-                        </div>
-                    </div>
+                    )}
+                    
 
                     {/* employees header */}
                     <div className='flex justify-between items-center mb-4'>
                         <div className='bg-dark__alt rounded-full p-3 flex justify-start items-center flex-1'>
                             <SearchRoundedIcon className='text-white mr-2'/>
-                            <input placeholder='Buscar empleado..' className='transparent__input'/>
+                            <input placeholder='Buscar empleado..' className='transparent__input' value={filter} onChange={(e) => {handleFilterChange(e)}}/>
                         </div>
                         <div className='ml-4'>
                             <Tooltip title="Filtrar" placement='top'>
@@ -184,7 +303,7 @@ const Dashboard: React.FC<Props> = (props) => {
 
                     {/* employees list */}
                     <div className='grid grid-cols-2 gap-4'>
-                        {props.employees.map((item:EmployeeProps, i:number) => (
+                        {employees.length !== 0 && employees.map((item:EmployeeProps, i:number) => (
                             <div key={i}>
                                 <Employee employee={item}/>
                             </div>
@@ -207,7 +326,7 @@ const Dashboard: React.FC<Props> = (props) => {
                 onClose={handleClose}
             >
                 {months.map((item, i) => (
-                    <MenuItem key={i} onClick={handleClose} disableRipple>
+                    <MenuItem key={i} onClick={() => {handleMonthChange(item.num)}} disableRipple>
                         {item.label}
                     </MenuItem>
                 ))}
