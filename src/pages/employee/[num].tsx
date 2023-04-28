@@ -63,19 +63,7 @@ const Dashboard: React.FC<Props> = (props) => {
     //Router
     const router = useRouter()
 
-    const [data, setData] = useState<MovementProps | null>({
-        id: 0,
-        empId: 0,
-        month: 0,
-        deliveries: 0,
-        totBonus: 0,
-        totDeliveries: 0,
-        isr: 0,
-        isrAdd: 0,
-        cupons: 0,
-        gross: 0,
-        net: 0,
-    })
+    const [data, setData] = useState<MovementProps | null>(null)
 
     const [month, setMonth] = useState(0)
 
@@ -259,8 +247,6 @@ const Dashboard: React.FC<Props> = (props) => {
                             <h4 className='text-white'>No hay un pago registrado para {months[month].label}</h4>
                         </div>
                     )}
-                    
-
                 </div>
             </div>
             

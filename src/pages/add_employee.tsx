@@ -68,11 +68,6 @@ export default function AddEmployee(/* {posts} */) {
         })
     }
 
-    //handle create user
-    const handleCreateUser = () => {
-        console.log(data)
-    }
-
     return (
         <div className="">
         <Head>

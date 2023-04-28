@@ -211,7 +211,7 @@ export default function AddMovement() {
                     <div className='grid grid-cols-2 gap-4 mb-4'>
                         <div className='flex justify-start items-center col-span-2'>
                             <div className='bg-dark__alt rounded-full p-3 flex justify-start items-center flex-1 mr-2'>
-                                <input value={data.num} name='num' onChange={(e) => {handleInputChange(e)}} placeholder='Buscar empleado..' className='transparent__input'/>
+                                <input value={data.num} name='num' onChange={(e) => {handleInputChange(e)}} placeholder='Buscar empleado por id..' className='transparent__input'/>
                             </div>
                             <Tooltip title="Buscar empleado" placement='top'>
                                 <IconButton onClick={handleGetEmployee}>
