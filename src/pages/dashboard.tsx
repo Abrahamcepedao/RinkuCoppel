@@ -181,7 +181,7 @@ const Dashboard: React.FC<Props> = (props) => {
         </Head>
 
         <main className="bg-auth w-full min-h-screen bg-cover bg-no-repeat bg-center">
-            <div className='w-full h-screen bg-auth__overlay flex justify-center items-start p-10 pt-40'>
+            <div className='w-full h-screen bg-auth__overlay flex justify-center items-start p-10 pt-40 max-h-screen overflow-scroll'>
             
                 <Image src={Logo} alt='Runko' className='fixed top-5 left-5 text-white' width={150}/>
 
