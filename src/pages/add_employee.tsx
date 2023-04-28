@@ -10,6 +10,7 @@ import Logo from '../../public/logo.png'
 import Link from 'next/link';
 
 //Material UI
+import { IconButton, Tooltip } from '@mui/material';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -18,12 +19,7 @@ import FormControl from '@mui/material/FormControl';
 //Material UI - icons
 import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
 import AccountBoxRoundedIcon from '@mui/icons-material/AccountBoxRounded';
-
-import { gql, useMutation } from '@apollo/client'
-import toast, { Toaster } from 'react-hot-toast'
-
-//Components
-import { StyledMenu } from '@/components/Menu';
+import ArrowCircleLeftRoundedIcon from '@mui/icons-material/ArrowCircleLeftRounded';
 
 
 export default function AddEmployee(/* {posts} */) {
@@ -93,8 +89,13 @@ export default function AddEmployee(/* {posts} */) {
 
                 <div className='min-w-[600px]'>
                     {/* header */}
-                    <div className='flex justify-between items-center'>
-                        <h1 className='text-3xl font-bold mb-2 text-white'>Agregar Empleado<span className='text-6xl !text-blue__primary'>.</span></h1>
+                    <div className='flex items-center justify-start'>
+                        <Tooltip title="Agregar empleado" placement='top'>
+                            <IconButton onClick={() => {router.back()}}>
+                                <ArrowCircleLeftRoundedIcon className='text-white'/>
+                            </IconButton>
+                        </Tooltip>
+                        <h1 className='text-3xl -mt-[10px] font-bold mb-4 text-white'>Agregar Empleado<span className='text-6xl !text-blue__primary'>.</span></h1>
                     </div>
 
                     {/* form */}

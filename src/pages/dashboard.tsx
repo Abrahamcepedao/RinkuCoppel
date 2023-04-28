@@ -174,7 +174,7 @@ const Dashboard: React.FC<Props> = (props) => {
                             <input placeholder='Buscar empleado..' className='transparent__input'/>
                         </div>
                         <div className='ml-4'>
-                            <Tooltip title="Filtrar">
+                            <Tooltip title="Filtrar" placement='top'>
                                 <IconButton>
                                     <FilterListRoundedIcon className='text-white'/>
                                 </IconButton>
