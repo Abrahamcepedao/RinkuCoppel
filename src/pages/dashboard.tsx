@@ -7,7 +7,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/router'
 import { GetStaticProps } from 'next';
 
-import prisma from '../../lib/prisma';
+//Firebase
+import { logout } from '../../firebase/functions/auth'
 
 //Assets
 import Logo from '../../public/logo.png'
@@ -43,30 +44,6 @@ import EmployeeProps from '../../utils/interfaces/EmployeeProps';
 import MovementProps from '../../utils/interfaces/MovementProps';
 import KpiProps from '../../utils/interfaces/KpiProps';
 
-//Functions
-import { loadDashboard } from '../../lib/loadDashboard';
-
-//Get Static Props - employees
-/* export const getStaticProps: GetStaticProps = async () => {
-    const employees = await prisma.employees.findMany()
-
-    const movements = await prisma.movements.findMany({
-        where: { month: 0 }
-    })
-
-    return {
-        props: { employees, movements },
-        revalidate: 10
-    }
-} */
-
-//Type - Props
-type Props = {
-    employees: EmployeeProps[],
-    movements: MovementProps[]
-}
-
-//const Dashboard: React.FC<Props> = (props) => {
 const Dashboard = () => {
     //Router
     const router = useRouter()
@@ -97,14 +74,8 @@ const Dashboard = () => {
 
     //useEffect
     useEffect(() => {
-        /* if(props.employees) {
-            setEmployees(props.employees)
-        } */
-        /* console.log(props.employees)
-        console.log(props.movements) */
         handleGetEmployees()
         handleGetMovements(month)
-        //calculateData(props.movements)
     }, [])
 
     const handleGetEmployees = async () => {
@@ -194,6 +165,11 @@ const Dashboard = () => {
         setEmployeesList(temp)
     }
 
+    const handleLogout = async () => {
+        await logout()
+        router.push('/')
+    }
+
     return (
         <div className="">
         <Head>
@@ -212,7 +188,7 @@ const Dashboard = () => {
                     <div className='flex justify-between items-center mb-4'>
                         <div>
                             <Tooltip title="Cerrar sesión" placement='top'>
-                                <IconButton onClick={() => {router.push('/')}}>
+                                <IconButton onClick={handleLogout}>
                                     <LogoutRoundedIcon className='text-white'/>
                                 </IconButton>
                             </Tooltip>
