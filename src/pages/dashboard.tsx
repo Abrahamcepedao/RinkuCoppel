@@ -47,14 +47,18 @@ import KpiProps from '../../utils/interfaces/KpiProps';
 import { loadDashboard } from '../../lib/loadDashboard';
 
 //Get Static Props - employees
-export const getStaticProps: GetStaticProps = async () => {
-    const { employees, movements } = await loadDashboard()
+/* export const getStaticProps: GetStaticProps = async () => {
+    const employees = await prisma.employees.findMany()
+
+    const movements = await prisma.movements.findMany({
+        where: { month: 0 }
+    })
 
     return {
         props: { employees, movements },
-        revalidate: 1
+        revalidate: 10
     }
-}
+} */
 
 //Type - Props
 type Props = {
@@ -62,7 +66,8 @@ type Props = {
     movements: MovementProps[]
 }
 
-const Dashboard: React.FC<Props> = (props) => {
+//const Dashboard: React.FC<Props> = (props) => {
+const Dashboard = () => {
     //Router
     const router = useRouter()
 
@@ -84,6 +89,7 @@ const Dashboard: React.FC<Props> = (props) => {
 
     //useState - employees list
     const [employees, setEmployees] = useState<Array<EmployeeProps>>([])
+    const [employeesList, setEmployeesList] = useState<Array<EmployeeProps>>([])
 
     //useState - month selection
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -91,13 +97,29 @@ const Dashboard: React.FC<Props> = (props) => {
 
     //useEffect
     useEffect(() => {
-        if(props.employees) {
+        /* if(props.employees) {
             setEmployees(props.employees)
-        }
-        console.log(props.employees)
-        console.log(props.movements)
-        calculateData(props.movements)
+        } */
+        /* console.log(props.employees)
+        console.log(props.movements) */
+        handleGetEmployees()
+        handleGetMovements(month)
+        //calculateData(props.movements)
     }, [])
+
+    const handleGetEmployees = async () => {
+        try {
+            const res = await fetch('/api/employee/all', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json'},
+            })
+            const r = await res.json()
+            setEmployees(r)
+            setEmployeesList(r)
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     const calculateData = (arr: MovementProps[]) => {
         if(arr !== null && arr !== undefined) {
@@ -165,11 +187,11 @@ const Dashboard: React.FC<Props> = (props) => {
 
     //handle filter change
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let temp = [...props.employees]
+        let temp = [...employees]
         let value = e.target.value
         temp = temp.filter((el) => el.name.toLocaleLowerCase().includes(value.toLocaleLowerCase()) || el.num.toString().includes(value))
         setFilter(value)
-        setEmployees(temp)
+        setEmployeesList(temp)
     }
 
     return (
@@ -305,7 +327,7 @@ const Dashboard: React.FC<Props> = (props) => {
 
                     {/* employees list */}
                     <div className='grid grid-cols-2 gap-4'>
-                        {employees.length !== 0 && employees.map((item:EmployeeProps, i:number) => (
+                        {employeesList.length !== 0 && employeesList.map((item:EmployeeProps, i:number) => (
                             <div key={i}>
                                 <Employee employee={item}/>
                             </div>
