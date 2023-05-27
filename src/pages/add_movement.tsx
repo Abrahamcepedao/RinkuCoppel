@@ -1,5 +1,5 @@
 //React
-import { useState } from 'react';
+import { useState, useEffect, MouseEvent } from 'react';
 import Head from 'next/head'
 import Image from 'next/image';
 import { useRouter } from 'next/router'
@@ -27,10 +27,13 @@ import ArrowCircleLeftRoundedIcon from '@mui/icons-material/ArrowCircleLeftRound
 
 //Components
 import { StyledMenu } from '@/components/Menu';
-
+import Employee2 from '@/components/Employee2';
 
 //Constants
 import months from '../../utils/constants/months';
+
+//INTERFACES
+import EmployeeProps from '../../utils/interfaces/EmployeeProps';
 
 export default function AddMovement() {
     //Router
@@ -39,16 +42,40 @@ export default function AddMovement() {
     //useState - data
     const [data, setData] = useState({
         num: "",
+        filter: "",
         name: "",
         role: "",
         month: 0,
         deliveries: "",
     })
 
+    const [employees, setEmployees] = useState<Array<EmployeeProps>>([])
+    const [employeesList, setEmployeesList] = useState<Array<EmployeeProps>>([])
+
     const [found, setFound] = useState(false)
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+
+    //useffect
+    useEffect(() => {
+        handleGetEmployees()
+    }, [])
+
+    const handleGetEmployees = async () => {
+        try {
+            const res = await fetch('/api/employee/all', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json'},
+            })
+            const r = await res.json()
+            setEmployees(r)
+            setEmployeesList(r)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -64,6 +91,27 @@ export default function AddMovement() {
             ...data,
             [e.target.name] : e.target.value
         })
+    }
+
+    //filter
+    const handleFilterChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        setData({
+            ...data,
+            num: e.target.value
+        })
+
+        //filtro
+        let val = e.target.value.toLocaleLowerCase()
+        if(val !== "") {
+            let temp: EmployeeProps[] = [...employees]
+            temp = temp.filter((el: EmployeeProps) => el.num.toString() === val || el.name.toLocaleLowerCase().includes(val) || el.role.toLocaleLowerCase().includes(val))
+            setEmployeesList(temp)
+        } else {
+            let temp: EmployeeProps[] = [...employees]
+            setEmployeesList(temp)
+            setFound(false)
+        }
+        
     }
 
     const calculateData = () => {
@@ -132,6 +180,7 @@ export default function AddMovement() {
                 alert("Movimento creado exitosamente")
                 setData({
                     num: "",
+                    filter: "",
                     name: "",
                     role: "",
                     month: 0,
@@ -149,8 +198,7 @@ export default function AddMovement() {
 
     
 
-    const handleGetEmployee = async () => {
-        const num = data.num
+    const handleGetEmployee = async (num: number) => {
         const body = { num }
         console.log(body)
         const res = await fetch(`/api/employee/${num}`, {
@@ -163,6 +211,7 @@ export default function AddMovement() {
         if(r !== null) {
             setData({
                 ...data,
+                num: num.toString(),
                 name: r.name,
                 role: r.role
             })
@@ -181,7 +230,6 @@ export default function AddMovement() {
         })
         handleClose()
     }
-   
 
     return (
         <div className="">
@@ -192,7 +240,7 @@ export default function AddMovement() {
         </Head>
 
         <main className="bg-auth w-full min-h-screen bg-cover bg-no-repeat bg-center">
-            <div className='w-full h-screen bg-auth__overlay flex justify-center items-start p-10 pt-40'>
+            <div className='w-full h-screen bg-auth__overlay flex justify-center items-start p-10 pt-40 max-h-screen overflow-y-scroll'>
             
                 <Image src={Logo} alt='Runko' className='fixed top-5 left-5 text-white' width={150}/>
 
@@ -208,17 +256,29 @@ export default function AddMovement() {
                     </div>
 
                     {/* form */}
-                    <div className='grid grid-cols-2 gap-4 mb-4'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
                         <div className='flex justify-start items-center col-span-2'>
                             <div className='bg-dark__alt rounded-full p-3 flex justify-start items-center flex-1 mr-2'>
-                                <input value={data.num} name='num' onChange={(e) => {handleInputChange(e)}} placeholder='Buscar empleado por id..' className='transparent__input'/>
+                                <input value={data.filter} name='filter' onChange={(e) => {handleFilterChange(e)}} placeholder='Buscar empleado..' className='transparent__input'/>
                             </div>
                             <Tooltip title="Buscar empleado" placement='top'>
-                                <IconButton onClick={handleGetEmployee}>
+                                <IconButton>
                                     <SearchRoundedIcon className='text-white'/>
                                 </IconButton>
                             </Tooltip>
                         </div>
+                        {/* listado de empleados */}
+                        {!found && (
+                            <div className='grid grid-cols-2 gap-4'>
+                                {employeesList.length !== 0 && employeesList.map((item:EmployeeProps, i:number) => (
+                                    <div key={i} onClick={() => {handleGetEmployee(item.num)}}>
+                                        <Employee2 employee={item}/>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        
+
                         {found && (
                             <div className='bg-dark__alt rounded-xl flex justify-between items-center p-4'>
                                 <div>
